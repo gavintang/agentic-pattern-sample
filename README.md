@@ -1,2 +1,5 @@
 # agentic-design-pattern
-Agentic design pattern demo
+
+```bash
+python -m venv .venv && source .venv/bin/activate && pip install -e .
+```
