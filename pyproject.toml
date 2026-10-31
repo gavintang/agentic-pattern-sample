@@ -1,0 +1,22 @@
+[project]
+name = "agentic-pattern-sample"
+version = "0.1.0"
+requires-python = ">=3.13"
+dependencies = [
+  "fastembed>=0.9.1",
+  "langchain", "langgraph", "langchain-ollama",
+  "ollama>=0.6.3", "qdrant-client>=1.20.0", "pytest>=9.1.1",
+  "python-dotenv>=1.2.4", "pydantic-settings>=2",
+]
+
+[project.optional-dependencies]
+
+[project.scripts]
+start="glab.app_main:main"
+
+[tool.pytest.ini_options]
+markers = [
+  "llm: marks tests required LLM service (deselect with '-m \"not llm\"')",
+  "ollama: marks tests required ollama server (deselect with '-m \"not ollama\"')",
+  "qdrant: marks tests required qdrant server (deselect with '-m \"not qdrant\"')",
+]
