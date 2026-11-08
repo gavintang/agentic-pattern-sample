@@ -5,7 +5,7 @@ when leveraging large language models (LLMs). Rather than expecting an LLM to so
 monolithic step, prompt chaining advocates for a divide-and-conquer strategy. The core idea is to break down the original,
 daunting problem into a sequence of smaller, more manageable sub-problems.``` -- Agentic Design Patterns
 
-In this demo, the task to support customer as an online chatbot, it will classify customer's request (pre-sale, post-sale,
+In this demo, the agent task is to support customer as an online chatbot, it will classify customer's request (pre-sale, post-sale,
 business, unknown) and then route the request to various sub agentics to generate response to customer.
 """
 

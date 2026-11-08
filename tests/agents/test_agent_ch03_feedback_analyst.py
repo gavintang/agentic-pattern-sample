@@ -21,7 +21,6 @@ def test_run(llm):
   resp = agent.run(query)
   print(json.dumps(asdict(resp), indent=2, ensure_ascii=False))
   rs = resp.last_message()
-
   assert isinstance(rs, LlmMessage)
   rs_content = parse_json_data(rs.content)
 

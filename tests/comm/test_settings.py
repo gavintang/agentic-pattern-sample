@@ -11,6 +11,11 @@ def llm_client(model: str | None = None) -> LlmClient:
   ollama_model = model or settings.model
   return OllamaClient(host=ollama_host, model=ollama_model)
 
+def llm_embed_client(model: str | None = None) -> LlmClient:
+  ollama_host = settings.ollama_host
+  ollama_model = model or settings.embed_model
+  return OllamaClient(host=ollama_host, model=ollama_model)
+
 def qdrant_client(collection_name: str | None = None, qdrant_vector_size: int | None = None) -> VdbClient:
   return VdbQdrantClient(
     host=settings.qdrant_host,
@@ -24,4 +29,3 @@ def langchain_ollama(model: str | None = None, tools: Sequence[Callable[..., Any
   return LangchainAgent(
     llm_type="ollama", host=ollama_host, temperature=0, model=ollama_model, tools=tools or []
   )
-

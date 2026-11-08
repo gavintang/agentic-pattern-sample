@@ -1,3 +1,4 @@
+from time import time
 from typing import Any
 
 from fastembed import SparseTextEmbedding, SparseEmbedding
@@ -41,7 +42,7 @@ class VdbQdrantClient(VdbClient):
     step_count = 30
     for start in range(0, total, step_count):
       batch_entries = entries[start:start + step_count]
-      points = self._make_search_point(start, llm_client, batch_entries)
+      points = self._make_search_points(start, llm_client, batch_entries)
       self.client.upsert(
         collection_name=self.collection_name,
         points=points,
@@ -49,6 +50,18 @@ class VdbQdrantClient(VdbClient):
       )
       finished_count = min(start + len(batch_entries), total)
       print(f"imported: {finished_count}/{total}")
+
+  def add_entry(self, llm_client: LlmClient, entry: dict[str, Any]) -> int | str:
+    pid = int(time()/1000)
+    vector = self._get_dense_vector(llm_client, _make_search_text(entry))
+    text = _make_search_text(entry)
+    pt = self._make_search_point(pid=pid, text=text, vector=vector, **entry)
+    self.client.upsert(
+      collection_name=self.collection_name,
+      points=[pt],
+      wait=True
+    )
+    return pid
 
   def neural_search(self, llm_client: LlmClient, text: str, **params) -> list[dict[str, Any] | None]:
     dense_vector = self._get_dense_vector(llm_client, text)
@@ -67,25 +80,29 @@ class VdbQdrantClient(VdbClient):
     ).points
     return [hit.payload for hit in search_result]
 
-  def _make_search_point(self, start: int, llm_client: LlmClient, batch_entries: list[dict[str, Any]]):
+  def _make_search_points(self, start: int, llm_client: LlmClient, batch_entries: list[dict[str, Any]]):
     batch_texts = [_make_search_text(entry) for entry in batch_entries]
     batch_dense_vectors = self._get_dense_vectors(llm_client, batch_texts)
     points = []
     for idx, (entry, text, dense_vector) in enumerate(
       zip(batch_entries, batch_texts, batch_dense_vectors)
     ):
-      _id = start + idx
-      _payload = {**entry, "search_text": text}
-      _sparse_vector = list(self.sparse_model.embed(text))[0]
-      _vector = {
-        "dense": dense_vector,
-        "splade_sparse": m.SparseVector(
-          indices=_sparse_vector.indices.tolist(),
-          values=_sparse_vector.values.tolist()
-        )
-      }
-      points.append(m.PointStruct(id=_id, vector=_vector, payload=_payload))
+      pid = start + idx
+      pt = self._make_search_point(pid, text, dense_vector, **entry)
+      points.append(pt)
     return points
+
+  def _make_search_point(self, pid: int | str, text: str, vector: Any, **entry):
+    _payload = {**entry, "search_text": text}
+    _sparse_vector = list(self.sparse_model.embed(text))[0]
+    _vector = {
+      "dense": vector,
+      "splade_sparse": m.SparseVector(
+        indices=_sparse_vector.indices.tolist(),
+        values=_sparse_vector.values.tolist()
+      )
+    }
+    return m.PointStruct(id=pid, vector=_vector, payload=_payload)
 
   def _get_dense_vectors(self, llm_client: LlmClient, texts) -> Any:
     vectors = llm_client.embed(texts)

@@ -4,7 +4,7 @@
 to a model where the agent dynamically evaluates specific criteria to select from a set of possible subsequent actions.
 This allows for more flexible and context-aware system behavior.``` -- Agentic Design Patterns
 
-In this demo, the task to convert the plain address text input by user to 3 subtasks, detect-language,
+In this demo, the agent task is to convert the plain address text input by user to 3 subtasks, detect-language,
 extract-address-to-json, and evaluate-address-data. Each subtask can be processed by different LLM.
 """
 

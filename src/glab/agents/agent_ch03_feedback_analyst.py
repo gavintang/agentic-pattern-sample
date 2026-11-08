@@ -5,7 +5,7 @@ concurrently. Instead of waiting for one step to complete before starting the ne
 allows independent tasks to run at the same time, significantly reducing the overall execution time for tasks
 that can be broken down into independent parts.``` -- Agentic Design Patterns
 
-In this demo, the task to analysis customer feedback, it will classify customer emotion, content urgency and
+In this demo, the agent task is to analysis customer feedback, it will classify customer emotion, content urgency and
 extract order info parallely, and then compose feedback reply or escalate to human based on the information in feedback.
 Using LangGraph to manage the workflow of agentics.
 """

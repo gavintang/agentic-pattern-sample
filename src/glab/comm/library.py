@@ -1,5 +1,5 @@
 """Abstract agent protocol"""
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import StrEnum
 from types import MappingProxyType
 from typing import Any, Protocol, Mapping, Callable, Sequence
@@ -56,14 +56,14 @@ class ToolCall:
 @dataclass(frozen=True)
 class LlmResponse:
   id: str
-  name: str | None
-  object: str
-  created: int | None
-  model: str | None
-  choices: list[LlmChoice]
-  tool_calls: list[ToolCall] | None
-  usage: TokenUsage | None
-  duration: ResponseDuration | None
+  name: str | None = None
+  object: str = "chat"
+  created: int | None = None
+  model: str | None = None
+  choices: list[LlmChoice] = field(default_factory=list)
+  tool_calls: list[ToolCall] | None  = None
+  usage: TokenUsage | None  = None
+  duration: ResponseDuration | None  = None
   def last_message(self, role: Role | None = None) -> LlmMessage | None:
     return next((m for m in reversed([c.message for c in self.choices]) if role is None or m.role == role), None)
 
@@ -106,6 +106,7 @@ class VdbClient(Protocol):
   def reset_collection(self, index_fields: list[str]): ...
   def delete_collection(self): ...
   def import_collection(self, llm_client: LlmClient, entries: list[dict[str, Any]]): ...
+  def add_entry(self, llm_client: LlmClient, entry: dict[str, Any]) -> int | str | None: ...
   def neural_search(self, llm_client: LlmClient, text: str, **params) -> list[dict[str, Any] | None]: ...
 
 class Agent(Protocol):
@@ -174,3 +175,15 @@ class AgentBuilder:
     for name, client in clients:
       self.clients[name or "default"] = client
 
+class Application(Protocol):
+  def collect_input(self) -> str: ...
+  def process(self, query: str) -> AgentResponse: ...
+  @staticmethod
+  def collect_multilines_input() -> str:
+    lst = []
+    while True:
+      tmp = input()
+      if tmp.strip() == "":
+        break
+      lst.append(tmp)
+    return "\n".join(ln for ln in lst if len(ln) > 0)
