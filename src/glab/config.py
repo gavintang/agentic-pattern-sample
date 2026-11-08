@@ -4,7 +4,7 @@ class Settings(BaseSettings):
   ollama_host: str = "http://localhost:11434"
   qdrant_host: str = "http://localhost:6333"
   qdrant_vector_size: int = 1024
-  model: str = "llama3.2:1b"
+  model: str = "ornith-1.5:9b"
   embed_model: str = "bge-m3:567m"
   debug: bool = False
 
